@@ -12,12 +12,30 @@ Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLf
 
 	moveSpeed = startMoveSpeed;
 	turnSpeed = startTurnSpeed;
+	max_x = 26.0f;
+	min_x = -29.0f;
+	min_z = -35.0f;
+	max_z = 36.0f;
+	min_y = 1.0f;
+	max_y = 50.0f;
 
 	update();
 }
 
 void Camera::keyControl(bool* keys, GLfloat deltaTime)
-{
+{	
+	if (position[0] > max_x)
+		position[0] = max_x;
+	else if(position[0] < min_x)
+		position[0] = min_x;
+	if (position[1] > max_y)
+		position[1] = max_y;
+	else if (position[1] < min_y)
+		position[1] = min_y;
+	if (position[2] > max_z)
+		position[2] = max_z;
+	else if (position[2] < min_z)
+		position[2] = min_z;
 	GLfloat velocity = moveSpeed * deltaTime;
 
 	if (keys[GLFW_KEY_W])
@@ -65,7 +83,14 @@ void Camera::keyControlAvatar(GLfloat pos_x, GLfloat pos_z) {
 
 void Camera::keyControlAerea(bool* keys, GLfloat deltaTime){
 	GLfloat velocity = moveSpeed * deltaTime;
-
+	if (position[0] > max_x)
+		position[0] = max_x;
+	else if (position[0] < min_x)
+		position[0] = min_x;
+	if (position[2] > max_z)
+		position[2] = max_z;
+	else if (position[2] < min_z)
+		position[2] = min_z;
 	position[1] = 33.33f; //valor de y
 
 

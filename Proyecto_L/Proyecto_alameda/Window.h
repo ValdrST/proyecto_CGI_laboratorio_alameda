@@ -21,6 +21,7 @@ public:
 	bool getAnimKeyHelicoptero() { return animKeyHelicoptero; }
 	bool getAnimKeyPajaro() { return animKeyPajaro; }
 	void setAnimKeyHelicoptero(bool val) {  animKeyHelicoptero = val; }
+	void setAnimKeyPajaro(bool val) { animKeyPajaro = val; }
 	int getCamara();
 	bool getAnimHelicoptero();
 	GLboolean OnOffLight() { return statusLight; }

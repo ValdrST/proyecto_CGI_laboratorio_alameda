@@ -26,7 +26,7 @@ void Keyframe::parse_key_frames() {
 		if (ibuff > maxbuff) {
 			maxbuff = ibuff;
 		}
-		fscanf_s(kFile, "%s", buffer);
+		fscanf_s(kFile, "%s", buffer, 10);
 		fscanf_s(kFile, "%f", &fbuff);
 		if (strcmp("mov_x", buffer) == 0) {
 			KeyFrame[ibuff].mov_x = fbuff;

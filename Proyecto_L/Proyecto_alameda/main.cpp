@@ -60,8 +60,6 @@ DirectionalLight mainLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
 
-Sound music;
-
 Skybox skybox;
 Skybox skybox_noche;
 
@@ -363,7 +361,7 @@ int main()
 	CrearCubo();
 	CreateShaders();
 	camera = Camera(glm::vec3(26.0f, 3.0f, 1.2f), glm::vec3(0.0f, 1.0f, 0.0f), 180.0f, 0.0f, 5.0f, 0.5f);
-	music = Sound(0.0f, 0.0f, 0.0f);
+	Sound *music = new Sound(0.0f, 0.0f, 0.0f);
 	plainTexture = Texture("Textures/plain.png");
 	plainTexture.LoadTextureA();
 	Tagave = Texture("Textures/arbusto.png");
@@ -383,8 +381,8 @@ int main()
 	AlaDer->LoadModel("Models/ala_der.obj");
 	Model *AlaIzq = new Model();
 	AlaIzq->LoadModel("Models/ala_izq.obj");
-	Model Arbol = Model();
-	Arbol.LoadModel("Models/arbol.assbin");
+	Model *Arbol = new Model();
+	Arbol->LoadModel("Models/arbol.assbin");
 	Model Bote_basura = Model();
 	Bote_basura.LoadModel("Models/bote_basura.assbin");
 	Model Faro = Model();
@@ -506,14 +504,18 @@ int main()
 	};
 	int num_posiciones_botes = sizeof(posiciones_botes) / sizeof(posiciones_botes[0]);
 	GLfloat posiciones_faros[] = {
-		3.45f, 0.6f,-3.75f,
-		3.45f, 0.4f, 4.0f,
+		-5.0f, 0.0f, -2.0f,
+		-5.0f, 0.0f, 4.0f,
 		1.0f, 0.0f, -2.0f,
 		1.0f, 0.0f, 4.0f,
+		19.0f, 0.0f, 4.5f,
+		19.0f, 0.0f, -2.5f,
+		-22.0f, 0.0f, 4.5f,
+		-22.0f, 0.0f, -2.5f,
 	};
 	int num_posiciones_faros = sizeof(posiciones_faros) / sizeof(posiciones_faros[0]);
 	GLint inds_luz_faro[] = {
-		1,2,3,4
+		1,2,3,4,5,6,7,8
 	};
 	GLfloat posiciones_bancas[] = {
 		3.5f,0.0f,2.5f,
@@ -617,20 +619,20 @@ int main()
 	glm::vec3 posblackhawk = glm::vec3(2.0f, 0.0f, 0.0f);
 
 	std::vector<std::string> skyboxFaces;
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_rt.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_lf.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_dn.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_up.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_bk.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_ft.tga");
+	skyboxFaces.push_back("Textures/Skybox/hill_lf.png");
+	skyboxFaces.push_back("Textures/Skybox/hill_rt.png");
+	skyboxFaces.push_back("Textures/Skybox/hill_dn.png");
+	skyboxFaces.push_back("Textures/Skybox/hill_up.png");
+	skyboxFaces.push_back("Textures/Skybox/hill_bk.png");
+	skyboxFaces.push_back("Textures/Skybox/hill_ft.png");
 
 	std::vector<std::string> skyboxFaces_noche;
-	skyboxFaces_noche.push_back("Textures/Skybox/cupertin-lake-night_rt.tga");
-	skyboxFaces_noche.push_back("Textures/Skybox/cupertin-lake-night_lf.tga");
-	skyboxFaces_noche.push_back("Textures/Skybox/cupertin-lake-night_dn.tga");
-	skyboxFaces_noche.push_back("Textures/Skybox/cupertin-lake-night_up.tga");
-	skyboxFaces_noche.push_back("Textures/Skybox/cupertin-lake-night_bk.tga");
-	skyboxFaces_noche.push_back("Textures/Skybox/cupertin-lake-night_ft.tga");
+	skyboxFaces_noche.push_back("Textures/Skybox/hill_noche_lf.png");
+	skyboxFaces_noche.push_back("Textures/Skybox/hill_noche_rt.png");
+	skyboxFaces_noche.push_back("Textures/Skybox/hill_noche_dn.png");
+	skyboxFaces_noche.push_back("Textures/Skybox/hill_noche_up.png");
+	skyboxFaces_noche.push_back("Textures/Skybox/hill_noche_bk.png");
+	skyboxFaces_noche.push_back("Textures/Skybox/hill_noche_ft.png");
 
 	skybox = Skybox(skyboxFaces);
 	skybox_noche = Skybox(skyboxFaces_noche);
@@ -657,9 +659,9 @@ int main()
 	GLfloat rotPuerta1 = 0.0f;
 	GLfloat rotPuerta2 = 0.0f;
 	GLint flag_helicoptero = 1;
-	Keyframe keyframes_helicoptero = Keyframe("Keyframes/keyFramesHelicoptero.txt", 60, "Helicoptero");
-	Keyframe keyframes_pajaro = Keyframe("Keyframes/keyFramesPajaro.txt", 60, "Pajaro");
-	//music.playMusic("sound/gorillaz.mp3");
+	Keyframe *keyframes_pajaro = new Keyframe("Keyframes/keyFramesPajaro.txt", 60, "Pajaro");
+	Keyframe *keyframes_helicoptero = new Keyframe("Keyframes/keyFramesHelicoptero.txt", 60, "Helicoptero");
+	music->playMusic("sound/gorillaz.mp3");
 	bool isSoundHelicopterPlay = false;
 	bool isSoundPuertaPlay = true;
 	bool puerta1_anim_ant = false;
@@ -695,18 +697,19 @@ int main()
 			
 		}
 		// Animacion de keyframes
-		keyframes_helicoptero.inputKeyframes(mainWindow.getAnimKeyHelicoptero());
-		keyframes_helicoptero.animate();
-		keyframes_pajaro.inputKeyframes(mainWindow.getAnimKeyPajaro());
-		keyframes_pajaro.animate();
-
+		keyframes_pajaro->inputKeyframes(mainWindow.getAnimKeyPajaro());
+		keyframes_pajaro->animate();
+		keyframes_helicoptero->inputKeyframes(mainWindow.getAnimKeyHelicoptero());
+		keyframes_helicoptero->animate();
+		mainWindow.setAnimKeyHelicoptero(false);
+		mainWindow.setAnimKeyPajaro(false);
 		// Animacion simple puertas
 		if(mainWindow.getAnimPuerta1() != puerta1_anim_ant)
 			isSoundPuertaPlay = false;
 		puerta1_anim_ant = mainWindow.getAnimPuerta1();
 		if(mainWindow.getAnimPuerta1()) {
 			if (!isSoundPuertaPlay) {
-				music.playFX("sound/puerta_abre.wav");
+				music->playFX("sound/puerta_abre.wav");
 				isSoundPuertaPlay = true;
 			}
 			if (rotPuerta1 < 89.0f)
@@ -716,7 +719,7 @@ int main()
 		}
 		else {
 			if (!isSoundPuertaPlay) {
-				music.playFX("sound/puerta_cierra.wav");
+				music->playFX("sound/puerta_cierra.wav");
 				isSoundPuertaPlay = true;
 			}
 			if (rotPuerta1 > 0.0f)
@@ -729,7 +732,7 @@ int main()
 		puerta2_anim_ant = mainWindow.getAnimPuerta2();
 		if(mainWindow.getAnimPuerta2()) {
 			if (!isSoundPuertaPlay) {
-				music.playFX("sound/puerta_abre.wav");
+				music->playFX("sound/puerta_abre.wav");
 				isSoundPuertaPlay = true;
 			}
 			if (rotPuerta2 < 89.0f)
@@ -739,7 +742,7 @@ int main()
 		}
 		else {
 			if (!isSoundPuertaPlay) {
-				music.playFX("sound/puerta_cierra.wav");
+				music->playFX("sound/puerta_cierra.wav");
 				isSoundPuertaPlay = true;
 			}
 			if (rotPuerta2 > 0.0f)
@@ -747,7 +750,7 @@ int main()
 			else
 				rotPuerta2 = 0.0f;
 		}
-		mainWindow.setAnimKeyHelicoptero(false);
+
 		if (rot_helice <= 360.0f) {
 			rot_helice += 180.0f * deltaTime;
 		}
@@ -775,7 +778,7 @@ int main()
 		if (mainWindow.getAnimHelicoptero()) {
 			// Efecto de sonido helicoptero
 			if (!isSoundHelicopterPlay) {
-				music.playFX("sound/helicoptero.wav");
+				music->playFX("sound/helicoptero.wav");
 				isSoundHelicopterPlay = true;
 			}
 			// Altura
@@ -892,7 +895,7 @@ int main()
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
-		//printf("%f %f %f\n", camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+		printf("%f %f %f\n", camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 		glm::mat4 model(1.0);
 		glm::mat4 modelaux(1.0);
 		model = glm::mat4(1.0);
@@ -914,11 +917,11 @@ int main()
 		model = glm::mat4(1.0);
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		model = glm::translate(model, glm::vec3(-1.7f, 5.5f, 31.0f));
-		model = glm::translate(model, glm::vec3(keyframes_pajaro.getVal("movX"), keyframes_pajaro.getVal("movY"), keyframes_pajaro.getVal("movZ")));
+		model = glm::translate(model, glm::vec3(keyframes_pajaro->getVal("movX"), keyframes_pajaro->getVal("movY"), keyframes_pajaro->getVal("movZ")));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(keyframes_pajaro.getVal("giroX")), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(keyframes_pajaro.getVal("giroY")), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(keyframes_pajaro.getVal("giroZ")), glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, glm::radians(keyframes_pajaro->getVal("giroX")), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(keyframes_pajaro->getVal("giroY")), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(keyframes_pajaro->getVal("giroZ")), glm::vec3(0.0f, 0.0f, 1.0f));
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
@@ -1028,11 +1031,11 @@ int main()
 		model = glm::mat4(1.0);
 		// printf("\n%f %f %f\n", keyframes_helicoptero.getVal("movX"), keyframes_helicoptero.getVal("movY"), keyframes_helicoptero.getVal("movZ"));
 		model = glm::translate(model, glm::vec3(-21.5f, 0.0f, -20.5f));
-		model = glm::translate(model, glm::vec3(keyframes_helicoptero.getVal("movX"), keyframes_helicoptero.getVal("movY"), keyframes_helicoptero.getVal("movZ")));
+		model = glm::translate(model, glm::vec3(keyframes_helicoptero->getVal("movX"), keyframes_helicoptero->getVal("movY"), keyframes_helicoptero->getVal("movZ")));
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		model = glm::rotate(model, glm::radians(keyframes_helicoptero.getVal("giroX")), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(keyframes_helicoptero.getVal("giroY")), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(keyframes_helicoptero.getVal("giroZ")), glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, glm::radians(keyframes_helicoptero->getVal("giroX")), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(keyframes_helicoptero->getVal("giroY")), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(keyframes_helicoptero->getVal("giroZ")), glm::vec3(0.0f, 0.0f, 1.0f));
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
@@ -1041,7 +1044,7 @@ int main()
 		model = modelaux;
 		model = glm::translate(model, glm::vec3(0.4f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		if (!keyframes_helicoptero.getPlay())
+		if (!keyframes_helicoptero->getPlay())
 			model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		else
 			model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -1051,7 +1054,7 @@ int main()
 		model = modelaux;
 		model = glm::translate(model, glm::vec3(-2.05f, 4.55f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		if(!keyframes_helicoptero.getPlay())
+		if(!keyframes_helicoptero->getPlay())
 			model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		else
 			model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -1073,7 +1076,7 @@ int main()
 		
 
 		loadModelArray(Bote_basura, posiciones_botes, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_botes);
-		loadModelArray(Arbol, posiciones_arboles, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arboles);
+		loadModelArray(*Arbol, posiciones_arboles, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arboles);
 		loadModelArray(Banca, posiciones_bancas, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_bancas);
 		loadModelArrayFaro(Faro, posiciones_faros, model, uniformModel, uniformSpecularIntensity, uniformShininess, inds_luz_faro, num_posiciones_faros);
 

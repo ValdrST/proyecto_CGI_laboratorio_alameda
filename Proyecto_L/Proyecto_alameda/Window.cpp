@@ -120,12 +120,6 @@ bool Window::getAnimHelicoptero() {
 void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, int mode)
 {
 	Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
-	if (theWindow->animKeyHelicoptero) {
-		theWindow->animKeyHelicoptero = false;
-	}
-	if (theWindow->animKeyPajaro) {
-		theWindow->animKeyPajaro = false;
-	}
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, GL_TRUE);

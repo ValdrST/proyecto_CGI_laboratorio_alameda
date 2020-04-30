@@ -33,7 +33,7 @@ private:
 	glm::vec3 up;
 	glm::vec3 right;
 	glm::vec3 worldUp;
-
+	GLfloat max_x, min_x, max_y, min_y, max_z, min_z;
 	GLfloat yaw;
 	GLfloat pitch;
 
