@@ -349,6 +349,25 @@ void loadModelArbustoArray(std::vector<Mesh*> meslist, GLfloat* posiciones, glm:
 	}
 }
 
+void rotacion_compleja_anim(GLfloat *anim_rot, bool *sentido, GLfloat min_rot, GLfloat max_rot, GLfloat offset) {
+	if (*anim_rot <= max_rot && *sentido) {
+		*anim_rot += offset * deltaTime;
+	}
+	else if (*anim_rot >= min_rot && !*sentido) {
+		*anim_rot -= offset * deltaTime;
+	}
+	else {
+		if (*sentido) {
+			*sentido = false;
+			*anim_rot = max_rot;
+		}
+		else {
+			*sentido = true;
+			*anim_rot = min_rot;
+		}
+	}
+}
+
 void loadModel(Model *model, const char *path) {
 	model->LoadModel(path);
 }
@@ -383,6 +402,18 @@ int main()
 	AlaIzq->LoadModel("Models/ala_izq.obj");
 	Model *Arbol = new Model();
 	Arbol->LoadModel("Models/arbol.assbin");
+	Model *Cabeza_avatar = new Model();
+	Cabeza_avatar->LoadModel("Models/avatar_cabeza.obj");
+	Model *Cuerpo_avatar = new Model();
+	Cuerpo_avatar->LoadModel("Models/avatar_cuerpo.obj");
+	Model *PiernaD_avatar = new Model();
+	PiernaD_avatar->LoadModel("Models/avatar_pierna_d.obj");
+	Model *PiernaI_avatar = new Model();
+	PiernaI_avatar->LoadModel("Models/avatar_pierna_i.obj");
+	Model *BrazoI_avatar = new Model();
+	BrazoI_avatar->LoadModel("Models/avatar_brazo_i.obj");
+	Model *BrazoD_avatar = new Model();
+	BrazoD_avatar->LoadModel("Models/avatar_brazo_d.obj");
 	Model Bote_basura = Model();
 	Bote_basura.LoadModel("Models/bote_basura.assbin");
 	Model Faro = Model();
@@ -641,8 +672,6 @@ int main()
 		uniformSpecularIntensity = 0, uniformShininess = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 300.0f);
 
-	movCoche = 0.0f;
-	float giro_rueda = 0.0f;
 	float giro_offset = 45.0f;
 	GLfloat rot_helice = 0.0f;
 	GLfloat mov_alas = 0.0f;
@@ -658,6 +687,9 @@ int main()
 	GLfloat rot_y_helicoptero = 0.0f;
 	GLfloat rotPuerta1 = 0.0f;
 	GLfloat rotPuerta2 = 0.0f;
+	GLfloat avatar_rot = 0.0f;
+	GLfloat rot_brazo = 0.0f;
+	GLfloat rot_pierna = 0.0f;
 	GLint flag_helicoptero = 1;
 	Keyframe *keyframes_pajaro = new Keyframe("Keyframes/keyFramesPajaro.txt", 60, "Pajaro");
 	Keyframe *keyframes_helicoptero = new Keyframe("Keyframes/keyFramesHelicoptero.txt", 60, "Helicoptero");
@@ -666,7 +698,11 @@ int main()
 	bool isSoundPuertaPlay = true;
 	bool puerta1_anim_ant = false;
 	bool puerta2_anim_ant = false;
+	bool *keys_avatar;
 	bool alas_sentido = false;
+	bool brazo_sentido = false;
+	bool pierna_sentido = false;
+	glm::vec3 posAvatar(24.0f, 1.88f, 1.0f);
 	//Loop mientras no se cierra la ventana
 	while (!mainWindow.getShouldClose()){
 		GLfloat now = float(glfwGetTime());
@@ -683,8 +719,39 @@ int main()
 			camera.mouseControlAerea();
 		}
 		if (mainWindow.getCamara() == 2) {
-			camera.keyControlAvatar(-21.5f + pos_x_helicopter, -22.5f + pos_z_helicopter);
+			camera.setCameraPosition(glm::vec3(posAvatar.x, 15.0f, posAvatar.z));
+			camera.keyControlAvatar(mainWindow.getsKeys(), deltaTime);
 			camera.mouseControlAerea();
+			posAvatar.x = camera.getCameraPosition().x;
+			posAvatar.z = camera.getCameraPosition().z;
+			keys_avatar = mainWindow.getsKeys();
+			if (keys_avatar[GLFW_KEY_A] || keys_avatar[GLFW_KEY_W] || keys_avatar[GLFW_KEY_D] || keys_avatar[GLFW_KEY_S]) {
+				rotacion_compleja_anim(&rot_brazo, &brazo_sentido, 0.0f, 45.0f, 50.0f);
+				rotacion_compleja_anim(&rot_pierna, &pierna_sentido, -45.0f, 45.0f, 90.0f);
+				if (keys_avatar[GLFW_KEY_D] && keys_avatar[GLFW_KEY_W])
+					avatar_rot = 45.0f;
+				else
+					if (keys_avatar[GLFW_KEY_D] && keys_avatar[GLFW_KEY_S])
+						avatar_rot = -45.0f;
+					else
+						if (keys_avatar[GLFW_KEY_S] && keys_avatar[GLFW_KEY_A])
+							avatar_rot = -135.0f;
+						else
+							if (keys_avatar[GLFW_KEY_A] && keys_avatar[GLFW_KEY_W])
+								avatar_rot = 135.0f;
+							else
+								if (keys_avatar[GLFW_KEY_W])
+									avatar_rot = 90.0f;
+								else
+									if (keys_avatar[GLFW_KEY_S])
+										avatar_rot = -90.0f;
+									else
+										if (keys_avatar[GLFW_KEY_D])
+											avatar_rot = 0.0f;
+										else
+											if (keys_avatar[GLFW_KEY_A])
+												avatar_rot = 180.0f;
+			}
 		}
 		
 		if (mainWindow.getCamara() == 3) {
@@ -758,22 +825,7 @@ int main()
 			rot_helice = 0.0f;
 		}
 		// Animacion alas de pajaro
-		if (mov_alas <= 45.0f && alas_sentido) {
-			mov_alas += 30.0f * deltaTime;
-		}
-		else if (mov_alas >= 0.0f && !alas_sentido) {
-			mov_alas -= 30.0f * deltaTime;
-		}
-		else {
-			if (alas_sentido) {
-				alas_sentido = false;
-				mov_alas = 45.0f;
-			}
-			else {
-				alas_sentido = true;
-				mov_alas = 0.0f;
-			}
-		}
+		rotacion_compleja_anim(&mov_alas, &alas_sentido, 0.0f, 45.0f, 30.0f);
 
 		if (mainWindow.getAnimHelicoptero()) {
 			// Efecto de sonido helicoptero
@@ -1021,7 +1073,6 @@ int main()
 			model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		else
 			model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		Helice_lateral.RenderModel();
@@ -1058,7 +1109,6 @@ int main()
 			model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		else
 			model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		Helice_lateral.RenderModel();
@@ -1073,8 +1123,52 @@ int main()
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		Kiosko->RenderModel();
 
-		
-
+		// Avatar
+		//Cabeza
+		modelaux = glm::mat4(1.0);
+		model = glm::mat4(1.0);
+		model = glm::translate(model, posAvatar);
+		model = glm::rotate(model, glm::radians(-90+avatar_rot), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.1f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Cabeza_avatar->RenderModel();
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(0.0f, -0.62f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Cuerpo_avatar->RenderModel();
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(0.3f, 0.35f, 0.0f));
+		model = glm::rotate(model, glm::radians(rot_brazo - 45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BrazoI_avatar->RenderModel();
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(-0.3f, 0.35f, 0.0f));
+		model = glm::rotate(model, glm::radians(-rot_brazo), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BrazoD_avatar->RenderModel();
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(0.13f, -0.16f, 0.0f));
+		model = glm::rotate(model, glm::radians(-rot_pierna), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		PiernaI_avatar->RenderModel();
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(-0.13f, -0.16f, 0.0f));
+		model = glm::rotate(model, glm::radians(rot_pierna), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		PiernaD_avatar->RenderModel();
 		loadModelArray(Bote_basura, posiciones_botes, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_botes);
 		loadModelArray(*Arbol, posiciones_arboles, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arboles);
 		loadModelArray(Banca, posiciones_bancas, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_bancas);
