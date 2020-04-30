@@ -74,10 +74,28 @@ void Camera::mouseControlAerea(){
 
 }
 
-void Camera::keyControlAvatar(GLfloat pos_x, GLfloat pos_z) {
-	position[0] = pos_x;
-	position[1] = 20.0f;
-	position[2] = pos_z;
+void Camera::keyControlAvatar(bool* keys, GLfloat deltaTime) {
+	GLfloat velocity = moveSpeed * deltaTime;
+	position[1] = 15.0f;
+	if (keys[GLFW_KEY_D])
+	{
+		position[0] += front[1] * velocity/4;
+	}
+
+	if (keys[GLFW_KEY_A])
+	{
+		position[0] -= front[1] * velocity/4;
+	}
+
+	if (keys[GLFW_KEY_S])
+	{
+		position[2] -= right[2] * velocity * 25.0f;
+	}
+
+	if (keys[GLFW_KEY_W])
+	{
+		position[2] += right[2] * velocity * 25.0f;
+	}
 }
 
 

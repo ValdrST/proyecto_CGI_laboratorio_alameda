@@ -18,9 +18,10 @@ public:
 	void mouseControlAerea();
 	void mouseControlQuiosco();
 	void keyControlAerea(bool* keys, GLfloat deltaTime);
-	void keyControlAvatar(GLfloat pos_x, GLfloat pos_z);
+	void keyControlAvatar(bool* keys, GLfloat deltaTime);
 	void keyControlQuiosco(bool* keys, GLfloat deltaTime);
 	glm::vec3 getCameraPosition();
+	void setCameraPosition(glm::vec3 pos) { position = pos; };
 	glm::vec3 getCameraDirection();
 	glm::mat4 calculateViewMatrix();
 	
