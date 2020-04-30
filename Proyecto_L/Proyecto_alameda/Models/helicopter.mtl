@@ -1,0 +1,57 @@
+# Blender MTL File: 'None'
+# Material Count: 5
+
+newmtl color_0.001
+Ns 99.999988
+Ka 1.000000 1.000000 1.000000
+Kd 0.501961 0.000000 0.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd H:\\lab_computacion_grafica\\proyectos\\Proyecto_L\\Proyecto_alameda\\Textures\\fuselage.jpg
+
+newmtl color_15.001
+Ns 99.999988
+Ka 1.000000 1.000000 1.000000
+Kd 0.000000 0.501961 0.250980
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd H:\\lab_computacion_grafica\\proyectos\\Proyecto_L\\Proyecto_alameda\\Textures\\negro.tga
+
+newmtl color_4.001
+Ns 99.999988
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.000000 0.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.600000
+illum 9
+map_Kd H:\\lab_computacion_grafica\\proyectos\\Proyecto_L\\Proyecto_alameda\\Textures\\amarillo.tga
+
+newmtl color_47.001
+Ns 99.999988
+Ka 1.000000 1.000000 1.000000
+Kd 0.843137 0.843137 0.843137
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.500000
+illum 9
+map_Kd H:\\lab_computacion_grafica\\proyectos\\Proyecto_L\\Proyecto_alameda\\Textures\\ENGINE2.tga
+
+newmtl color_7.001
+Ns 99.999988
+Ka 1.000000 1.000000 1.000000
+Kd 0.600000 0.528344 0.512456
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd H:\\lab_computacion_grafica\\proyectos\\Proyecto_L\\Proyecto_alameda\\Textures\\ENGINE.tga
