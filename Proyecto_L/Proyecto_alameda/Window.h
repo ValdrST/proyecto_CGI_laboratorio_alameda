@@ -62,12 +62,18 @@ public:
 	GLfloat getmuevez() { return muevez; }
 	bool getAnimPuerta1() { return animPuerta1; }
 	bool getAnimPuerta2() { return animPuerta2; }
+	bool getAnimArena() { return animArena; }
 	bool getAnimKeyHelicoptero() { return animKeyHelicoptero; }
 	bool getAnimKeyPajaro() { return animKeyPajaro; }
 	void setAnimKeyHelicoptero(bool val) {  animKeyHelicoptero = val; }
 	void setAnimKeyPajaro(bool val) { animKeyPajaro = val; }
 	int getCamara();
 	bool getAnimHelicoptero();
+	/**
+	 * @brief Prende y apaga la luz de la linterna de camara
+	 * 
+	 * @return GLboolean 
+	 */
 	GLboolean OnOffLight() { return statusLight; }
 	GLboolean statusluzR() { return status_luzR; }
 	GLboolean statusluzG() { return status_luzG; }
@@ -112,6 +118,7 @@ private:
 	bool animHelicoptero;
 	bool animPuerta1;
 	bool animPuerta2;
+	bool animArena;
 	bool animKeyHelicoptero;
 	bool animKeyPajaro;
 	bool mouseFirstMoved;

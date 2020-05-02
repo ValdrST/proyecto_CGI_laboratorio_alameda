@@ -29,6 +29,7 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	status_luzR = false;
 	status_luzG = false;
 	status_luzB = false;
+	animArena = false;
 
 	for (size_t i = 0; i < 1024; i++)
 	{
@@ -161,12 +162,20 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	}
 	if (key == GLFW_KEY_O)
 	{
-		theWindow-> muevez += 0.10f;
 		if (action == GLFW_RELEASE) {
 			if (theWindow->animPuerta2 == true)
 				theWindow->animPuerta2 = false;
 			else
 				theWindow->animPuerta2 = true;
+		}
+	}
+	if (key == GLFW_KEY_R)
+	{
+		if (action == GLFW_RELEASE) {
+			if (theWindow->animArena == true)
+				theWindow->animArena = false;
+			else
+				theWindow->animArena = true;
 		}
 	}
 	if (key == GLFW_KEY_P)
