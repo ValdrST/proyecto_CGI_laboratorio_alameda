@@ -59,6 +59,7 @@ DirectionalLight mainLight;
 //para declarar varias luces de tipo pointlight
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
+Sound *music = new Sound(0.0f, 0.0f, 0.0f);
 
 Skybox skybox;
 Skybox skybox_noche;
@@ -350,26 +351,62 @@ void loadModelArbustoArray(std::vector<Mesh*> meslist, GLfloat* posiciones, glm:
 }
 
 void rotacion_compleja_anim(GLfloat *anim_rot, bool *sentido, GLfloat min_rot, GLfloat max_rot, GLfloat offset) {
-	if (*anim_rot <= max_rot && *sentido) {
-		*anim_rot += offset * deltaTime;
-	}
-	else if (*anim_rot >= min_rot && !*sentido) {
-		*anim_rot -= offset * deltaTime;
-	}
-	else {
-		if (*sentido) {
-			*sentido = false;
-			*anim_rot = max_rot;
+	if (sentido != NULL) {
+		if (*anim_rot <= max_rot && *sentido) {
+			*anim_rot += offset * deltaTime;
+		}
+		else if (*anim_rot >= min_rot && !*sentido) {
+			*anim_rot -= offset * deltaTime;
 		}
 		else {
-			*sentido = true;
-			*anim_rot = min_rot;
+			if (*sentido) {
+				*sentido = false;
+				*anim_rot = max_rot;
+			}
+			else {
+				*sentido = true;
+				*anim_rot = min_rot;
+			}
 		}
+	}
+	else {
+		if (max_rot > min_rot) {
+			if (*anim_rot <= max_rot) {
+				*anim_rot += offset * deltaTime;
+			}
+			else {
+				*anim_rot = min_rot;
+			}
+		}
+		else {
+			if (*anim_rot <= max_rot) {
+				*anim_rot -= offset * deltaTime;
+			}
+			else {
+				*anim_rot = max_rot;
+			}
+		}
+
 	}
 }
 
-void loadModel(Model *model, const char *path) {
-	model->LoadModel(path);
+void animacion_simple(GLfloat *pos, GLfloat pos_final, GLfloat offset, const char* FX, bool *status_FX) {
+	if (!*status_FX) {
+		music->playFX(FX);
+		*status_FX = true;
+	}
+	if (pos_final < *pos) {
+		if (*pos > pos_final)
+			*pos -= offset * deltaTime;
+		else
+			*pos = pos_final;
+	}
+	else {
+		if (*pos < pos_final)
+			*pos += offset * deltaTime;
+		else
+			*pos = pos_final;
+	}
 }
 
 int main()
@@ -380,7 +417,7 @@ int main()
 	CrearCubo();
 	CreateShaders();
 	camera = Camera(glm::vec3(26.0f, 3.0f, 1.2f), glm::vec3(0.0f, 1.0f, 0.0f), 180.0f, 0.0f, 5.0f, 0.5f);
-	Sound *music = new Sound(0.0f, 0.0f, 0.0f);
+	
 	plainTexture = Texture("Textures/plain.png");
 	plainTexture.LoadTextureA();
 	Tagave = Texture("Textures/arbusto.png");
@@ -414,6 +451,8 @@ int main()
 	BrazoI_avatar->LoadModel("Models/avatar_brazo_i.obj");
 	Model *BrazoD_avatar = new Model();
 	BrazoD_avatar->LoadModel("Models/avatar_brazo_d.obj");
+	Model *Columna = new Model();
+	Columna->LoadModel("Models/columna.obj");
 	Model Bote_basura = Model();
 	Bote_basura.LoadModel("Models/bote_basura.assbin");
 	Model Faro = Model();
@@ -775,55 +814,22 @@ int main()
 			isSoundPuertaPlay = false;
 		puerta1_anim_ant = mainWindow.getAnimPuerta1();
 		if(mainWindow.getAnimPuerta1()) {
-			if (!isSoundPuertaPlay) {
-				music->playFX("sound/puerta_abre.wav");
-				isSoundPuertaPlay = true;
-			}
-			if (rotPuerta1 < 89.0f)
-				rotPuerta1 += puerta_offset * deltaTime;
-			else
-				rotPuerta1 = 90.0f;
+			animacion_simple(&rotPuerta1, 90.0f, puerta_offset / 4, "sound/puerta_abre.wav", &isSoundPuertaPlay);
 		}
 		else {
-			if (!isSoundPuertaPlay) {
-				music->playFX("sound/puerta_cierra.wav");
-				isSoundPuertaPlay = true;
-			}
-			if (rotPuerta1 > 0.0f)
-				rotPuerta1 -= puerta_offset  * deltaTime;
-			else
-				rotPuerta1 = 0.0f;
+			animacion_simple(&rotPuerta1, 0.0f, puerta_offset, "sound/puerta_cierra.wav", &isSoundPuertaPlay);
 		}
 		if (mainWindow.getAnimPuerta2() != puerta2_anim_ant)
 			isSoundPuertaPlay = false;
 		puerta2_anim_ant = mainWindow.getAnimPuerta2();
 		if(mainWindow.getAnimPuerta2()) {
-			if (!isSoundPuertaPlay) {
-				music->playFX("sound/puerta_abre.wav");
-				isSoundPuertaPlay = true;
-			}
-			if (rotPuerta2 < 89.0f)
-				rotPuerta2 += puerta_offset * deltaTime;
-			else
-				rotPuerta2 = 90.0f;
+			animacion_simple(&rotPuerta2, 90.0f, puerta_offset / 4, "sound/puerta_abre.wav", &isSoundPuertaPlay);
 		}
 		else {
-			if (!isSoundPuertaPlay) {
-				music->playFX("sound/puerta_cierra.wav");
-				isSoundPuertaPlay = true;
-			}
-			if (rotPuerta2 > 0.0f)
-				rotPuerta2 -= puerta_offset  * deltaTime;
-			else
-				rotPuerta2 = 0.0f;
+			animacion_simple(&rotPuerta2, 0.0f, puerta_offset, "sound/puerta_cierra.wav", &isSoundPuertaPlay);
 		}
+		rotacion_compleja_anim(&rot_helice, NULL, 0, 360, 180.0f);
 
-		if (rot_helice <= 360.0f) {
-			rot_helice += 180.0f * deltaTime;
-		}
-		else {
-			rot_helice = 0.0f;
-		}
 		// Animacion alas de pajaro
 		rotacion_compleja_anim(&mov_alas, &alas_sentido, 0.0f, 45.0f, 30.0f);
 
@@ -1169,6 +1175,11 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		PiernaD_avatar->RenderModel();
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-2.0f, -2.0f, 32.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Columna->RenderModel();
 		loadModelArray(Bote_basura, posiciones_botes, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_botes);
 		loadModelArray(*Arbol, posiciones_arboles, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arboles);
 		loadModelArray(Banca, posiciones_bancas, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_bancas);
