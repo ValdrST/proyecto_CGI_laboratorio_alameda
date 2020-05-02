@@ -37,12 +37,14 @@ Proyecto final
 #include "Sound.h"
 #include "Keyframe.h"
 const float toRadians = 3.14159265f / 180.0f;
-float movCoche;
+float animArena;
+float animRotArena;
 float movOffset;
 bool avanza;
 Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
+
 Camera camera;
 
 Texture brickTexture;
@@ -244,17 +246,23 @@ void CrearCubo()
 
 }
 
-void CrearCupula() {
-	
-}
-
 void CreateShaders()
 {
 	Shader *shader1 = new Shader();
 	shader1->CreateFromFiles(vShader, fShader);
 	shaderList.push_back(*shader1);
 }
-
+/**
+ * @brief dibuja modelos de acuerdo a sus posiciones 
+ * 
+ * @param objeto Modelo a repetir
+ * @param posiciones Lista de posiciones
+ * @param model Matriz de modelo
+ * @param uniformModel 
+ * @param uniformSpecularIntensity 
+ * @param uniformShininess 
+ * @param num_posiciones Numero de modelos a dibujar
+ */
 void loadModelArray(Model objeto, GLfloat* posiciones, glm::mat4 model, GLuint uniformModel, GLuint uniformSpecularIntensity, GLuint uniformShininess, int num_posiciones) {
 	glm::vec3 posicion;
 	int i_aux = 0;
@@ -282,7 +290,18 @@ void loadModelArray(Model objeto, GLfloat* posiciones, glm::mat4 model, GLuint u
 
 	}
 }
-
+/**
+ * @brief Dibuja objetos con luz puntal
+ * 
+ * @param objeto Modelo a dibujar
+ * @param posiciones Lista con posiciones
+ * @param model Matriz de modelo
+ * @param uniformModel 
+ * @param uniformSpecularIntensity 
+ * @param uniformShininess 
+ * @param ind_point_lights lista con los indices de las luces puntuales para usar
+ * @param num_posiciones Numero de faros a dibujare
+ */
 void loadModelArrayFaro(Model objeto, GLfloat* posiciones, glm::mat4 model, GLuint uniformModel, GLuint uniformSpecularIntensity, GLuint uniformShininess, GLint* ind_point_lights, int num_posiciones) {
 	glm::vec3 posicion;
 	int i_aux = 0;
@@ -318,8 +337,18 @@ void loadModelArrayFaro(Model objeto, GLfloat* posiciones, glm::mat4 model, GLui
 		i_aux++;
 	}
 }
-
-void loadModelArbustoArray(std::vector<Mesh*> meslist, GLfloat* posiciones, glm::mat4 model, GLuint uniformModel, GLuint uniformSpecularIntensity, GLuint uniformShininess, int num_posiciones) {
+/**
+ * @brief Carga los arbustos con canal alfa
+ * 
+ * @param mesh Malla, debe ser un plano aunque puede ser cualquier tipo de malla
+ * @param posiciones Lista con las posiciones
+ * @param model Modelo
+ * @param uniformModel Variable unifromde de modelo 
+ * @param uniformSpecularIntensity 
+ * @param uniformShininess 
+ * @param num_posiciones Numero de objetos a dibujar
+ */
+void loadModelArbustoArray(Mesh* mesh, GLfloat* posiciones, glm::mat4 model, GLuint uniformModel, GLuint uniformSpecularIntensity, GLuint uniformShininess, int num_posiciones) {
 	glm::vec3 posicion;
 	int i_aux = 0;
 	posicion = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -342,13 +371,23 @@ void loadModelArbustoArray(std::vector<Mesh*> meslist, GLfloat* posiciones, glm:
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-			meslist[3]->RenderMesh();
+			mesh->RenderMesh();
 			glDisable(GL_BLEND);
 			posicion = glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 		i_aux++;
 	}
 }
+
+/**
+ * @brief Rotacion continua
+ * 
+ * @param anim_rot Valor a modificar
+ * @param sentido Sentido de la rotacion, solo para uso interno
+ * @param min_rot Minima rotacion
+ * @param max_rot Maxima rotacion
+ * @param offset Paso de rotacion
+ */
 
 void rotacion_compleja_anim(GLfloat *anim_rot, bool *sentido, GLfloat min_rot, GLfloat max_rot, GLfloat offset) {
 	if (sentido != NULL) {
@@ -389,24 +428,32 @@ void rotacion_compleja_anim(GLfloat *anim_rot, bool *sentido, GLfloat min_rot, G
 
 	}
 }
-
+/**
+ * @brief Animacion simple
+ * 
+ * @param pos Posicion a modificar
+ * @param pos_final Posicion final
+ * @param offset Paso de movimiento
+ * @param FX Datos del archivo de efecto de sonido
+ * @param status_FX Status de efecto de sonido, evita que se reproduzca mas veces de lo necesario
+ */
 void animacion_simple(GLfloat *pos, GLfloat pos_final, GLfloat offset, const char* FX, bool *status_FX) {
-	if (!*status_FX) {
-		music->playFX(FX);
-		*status_FX = true;
+	if (FX != NULL && status_FX != NULL) {
+		if (!*status_FX) {
+			music->playFX(FX);
+			*status_FX = true;
+		}
 	}
 	if (pos_final < *pos) {
 		if (*pos > pos_final)
 			*pos -= offset * deltaTime;
-		else
-			*pos = pos_final;
 	}
 	else {
 		if (*pos < pos_final)
 			*pos += offset * deltaTime;
-		else
-			*pos = pos_final;
+
 	}
+
 }
 
 int main()
@@ -451,8 +498,8 @@ int main()
 	BrazoI_avatar->LoadModel("Models/avatar_brazo_i.obj");
 	Model *BrazoD_avatar = new Model();
 	BrazoD_avatar->LoadModel("Models/avatar_brazo_d.obj");
-	Model *Columna = new Model();
-	Columna->LoadModel("Models/columna.obj");
+	Model *Reloj_arena = new Model();
+	Reloj_arena->LoadModel("Models/reloj_arena.obj");
 	Model Bote_basura = Model();
 	Bote_basura.LoadModel("Models/bote_basura.assbin");
 	Model Faro = Model();
@@ -473,6 +520,10 @@ int main()
 	Helice_lateral.LoadModel("Models/helice_lateral.assbin");
 	Model Helice = Model();
 	Helice.LoadModel("Models/helice.assbin");
+	Model *Arena = new Model();
+	Arena->LoadModel("Models/arena.obj");
+	Model *MonticuloArena = new Model();
+	MonticuloArena->LoadModel("Models/monticulo_arena.obj");
 	
 	GLfloat posiciones_arboles[] = {
 		4.5f, 0.8f, 6.3f,
@@ -744,6 +795,7 @@ int main()
 	glm::vec3 posAvatar(24.0f, 1.88f, 1.0f);
 	//Loop mientras no se cierra la ventana
 	while (!mainWindow.getShouldClose()){
+
 		GLfloat now = float(glfwGetTime());
 		deltaTime = 1.0f * (now - lastTime);
 		lastTime = now;
@@ -796,7 +848,6 @@ int main()
 		if (mainWindow.getCamara() == 3) {
 			camera.keyControlQuiosco(mainWindow.getsKeys(), deltaTime);
 			camera.mouseControlQuiosco();
-
 		}
 		// Camara en pausa
 		if (mainWindow.getCamara() == 4) {
@@ -828,11 +879,17 @@ int main()
 		else {
 			animacion_simple(&rotPuerta2, 0.0f, puerta_offset, "sound/puerta_cierra.wav", &isSoundPuertaPlay);
 		}
-		rotacion_compleja_anim(&rot_helice, NULL, 0, 360, 180.0f);
-
+		// Animacion reloj de arena
+		if (mainWindow.getAnimArena()) {
+			animArena = 1.0f;
+			animRotArena = 0.0f;
+		}
+			animacion_simple(&animArena, 0.50f, 1.0f, NULL, NULL);
+			animacion_simple(&animRotArena, 90.0f, 180.0f, NULL, NULL);
 		// Animacion alas de pajaro
 		rotacion_compleja_anim(&mov_alas, &alas_sentido, 0.0f, 45.0f, 30.0f);
-
+		// Animacion helices
+		rotacion_compleja_anim(&rot_helice, NULL, 0, 360, 180.0f);
 		if (mainWindow.getAnimHelicoptero()) {
 			// Efecto de sonido helicoptero
 			if (!isSoundHelicopterPlay) {
@@ -1163,7 +1220,7 @@ int main()
 		BrazoD_avatar->RenderModel();
 		model = modelaux;
 		model = glm::translate(model, glm::vec3(0.13f, -0.16f, 0.0f));
-		model = glm::rotate(model, glm::radians(-rot_pierna), glm::vec3(1.0f, 0.0f, 0.0f));
+		
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
@@ -1176,17 +1233,36 @@ int main()
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		PiernaD_avatar->RenderModel();
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-2.0f, -2.0f, 32.0f));
+		modelaux = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-1.7f, 1.3f, 32.0f));
+		modelaux = model;
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Columna->RenderModel();
+		MonticuloArena->RenderModel();
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(0.0f, animArena, 0.0f));
+		model = glm::rotate(model, glm::radians(animRotArena), glm::vec3(1.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Arena->RenderModel();
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(2.2f, 2.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		Reloj_arena->RenderModel();
+		glDisable(GL_BLEND);
+		
 		loadModelArray(Bote_basura, posiciones_botes, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_botes);
 		loadModelArray(*Arbol, posiciones_arboles, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arboles);
 		loadModelArray(Banca, posiciones_bancas, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_bancas);
 		loadModelArrayFaro(Faro, posiciones_faros, model, uniformModel, uniformSpecularIntensity, uniformShininess, inds_luz_faro, num_posiciones_faros);
 
 		Tagave.UseTexture();
-		loadModelArbustoArray(meshList, posiciones_arbustos, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arbustos);
+		loadModelArbustoArray(meshList[3], posiciones_arbustos, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arbustos);
 		glUseProgram(0);
 
 		mainWindow.swapBuffers();
