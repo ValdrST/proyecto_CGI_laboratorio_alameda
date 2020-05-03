@@ -37,10 +37,7 @@ Proyecto final
 #include "Sound.h"
 #include "Keyframe.h"
 const float toRadians = 3.14159265f / 180.0f;
-float animArena;
-float animRotArena;
-float movOffset;
-bool avanza;
+
 Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
@@ -69,6 +66,72 @@ Skybox skybox_noche;
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
 GLint dia_flag = 0;
+
+GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, 
+	uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0;
+
+// Modelos
+Model *Alameda;
+Model *Monumento;
+Model *Kiosko;
+Model *CuerpoPajaro;
+Model *AlaDer;
+Model *AlaIzq;
+Model *Arbol;
+Model *Cabeza_avatar;
+Model *Cuerpo_avatar;
+Model *PiernaD_avatar;
+Model *PiernaI_avatar;
+Model *BrazoI_avatar;
+Model *BrazoD_avatar;
+Model *Reloj_arena;
+Model Bote_basura;
+Model Faro;
+Model Banca;
+Model Fuente;
+Model Bano;
+Model Puerta;
+Model Helipuerto;
+Model Helicoptero;
+Model Helice_lateral;
+Model Helice;
+Model *Arena;
+Model *MonticuloArena;
+// Keyframes
+Keyframe *keyframes_pajaro = new Keyframe("Keyframes/keyFramesPajaro.txt", 60, "Pajaro");
+Keyframe *keyframes_helicoptero = new Keyframe("Keyframes/keyFramesHelicoptero.txt", 60, "Helicoptero");
+// Variables de animacion
+
+glm::vec3 posAvatar(24.0f, 1.88f, 1.0f);
+GLfloat animArena = 1.0f;
+GLfloat animRotArena;
+GLfloat giro_offset = 45.0f;
+GLfloat rot_helice = 0.0f;
+GLfloat mov_alas = 0.0f;
+GLfloat movOffset = 1.0f;
+GLfloat pos_x_helicopter = 0.0f;
+GLfloat pos_y_helicopter = 0.0f;
+GLfloat pos_z_helicopter = 0.0f;
+GLfloat func_helicoptero = 0.0f;
+GLfloat puerta_offset = 45.0f;
+GLfloat func_sin = 0.0f;
+GLfloat rot_y_helicoptero = 0.0f;
+GLfloat rotPuerta1 = 0.0f;
+GLfloat rotPuerta2 = 0.0f;
+GLfloat avatar_rot = 0.0f;
+GLfloat rot_brazo = 0.0f;
+GLfloat rot_pierna = 0.0f;
+GLint flag_helicoptero = 1;
+GLint ciclos = 0;
+bool isSoundHelicopterPlay = false;
+bool isSoundPuertaPlay = true;
+bool puerta1_anim_ant = false;
+bool puerta2_anim_ant = false;
+bool *keys_avatar;
+bool alas_sentido = false;
+bool brazo_sentido = false;
+bool pierna_sentido = false;
+
 // Vertex Shader
 static const char* vShader = "shaders/shader_light.vert";
 
@@ -456,75 +519,13 @@ void animacion_simple(GLfloat *pos, GLfloat pos_final, GLfloat offset, const cha
 
 }
 
-int main()
-{
-	mainWindow = Window(1920, 1080); // 1280, 1024 or 1024, 768
-	mainWindow.Initialise();
-	CreateObjects();
-	CrearCubo();
-	CreateShaders();
-	camera = Camera(glm::vec3(26.0f, 3.0f, 1.2f), glm::vec3(0.0f, 1.0f, 0.0f), 180.0f, 0.0f, 5.0f, 0.5f);
-	
-	plainTexture = Texture("Textures/plain.png");
-	plainTexture.LoadTextureA();
-	Tagave = Texture("Textures/arbusto.png");
-	Tagave.LoadTextureA();
-	Material_brillante = Material(4.0f, 256);
-	Material_opaco = Material(0.3f, 4);
-	std::vector<std::thread> threads;
-	Model *Alameda = new Model(); 
-	Alameda->LoadModel("Models/alameda.assbin");
-	Model *Monumento = new Model();
-	Monumento->LoadModel("Models/monumento.assbin");
-	Model *Kiosko = new Model();
-	Kiosko->LoadModel("Models/quiosco.assbin");
-	Model *CuerpoPajaro = new Model();
-	CuerpoPajaro->LoadModel("Models/pajaro_cuerpo.obj");
-	Model *AlaDer = new Model();
-	AlaDer->LoadModel("Models/ala_der.obj");
-	Model *AlaIzq = new Model();
-	AlaIzq->LoadModel("Models/ala_izq.obj");
-	Model *Arbol = new Model();
-	Arbol->LoadModel("Models/arbol.assbin");
-	Model *Cabeza_avatar = new Model();
-	Cabeza_avatar->LoadModel("Models/avatar_cabeza.obj");
-	Model *Cuerpo_avatar = new Model();
-	Cuerpo_avatar->LoadModel("Models/avatar_cuerpo.obj");
-	Model *PiernaD_avatar = new Model();
-	PiernaD_avatar->LoadModel("Models/avatar_pierna_d.obj");
-	Model *PiernaI_avatar = new Model();
-	PiernaI_avatar->LoadModel("Models/avatar_pierna_i.obj");
-	Model *BrazoI_avatar = new Model();
-	BrazoI_avatar->LoadModel("Models/avatar_brazo_i.obj");
-	Model *BrazoD_avatar = new Model();
-	BrazoD_avatar->LoadModel("Models/avatar_brazo_d.obj");
-	Model *Reloj_arena = new Model();
-	Reloj_arena->LoadModel("Models/reloj_arena.obj");
-	Model Bote_basura = Model();
-	Bote_basura.LoadModel("Models/bote_basura.assbin");
-	Model Faro = Model();
-	Faro.LoadModel("Models/faro.assbin");
-	Model Banca = Model();
-	Banca.LoadModel("Models/banca.assbin");
-	Model Fuente = Model();
-	Fuente.LoadModel("Models/fuente.assbin");
-	Model Bano = Model();
-	Bano.LoadModel("Models/baño.assbin");
-	Model Puerta = Model();
-	Puerta.LoadModel("Models/puerta.assbin");
-	Model Helipuerto = Model();
-	Helipuerto.LoadModel("Models/helipuerto.assbin");
-	Model Helicoptero = Model();
-	Helicoptero.LoadModel("Models/helicopter.assbin");
-	Model Helice_lateral = Model();
-	Helice_lateral.LoadModel("Models/helice_lateral.assbin");
-	Model Helice = Model();
-	Helice.LoadModel("Models/helice.assbin");
-	Model *Arena = new Model();
-	Arena->LoadModel("Models/arena.obj");
-	Model *MonticuloArena = new Model();
-	MonticuloArena->LoadModel("Models/monticulo_arena.obj");
-	
+void renderScene(Shader *shader){
+	uniformModel = shader->GetModelLocation();
+	uniformProjection = shader->GetProjectionLocation();
+	uniformView = shader->GetViewLocation();
+	uniformEyePosition = shader->GetEyePositionLocation();
+	uniformSpecularIntensity = shader->GetSpecularIntensityLocation();
+	uniformShininess = shader->GetShininessLocation();
 	GLfloat posiciones_arboles[] = {
 		4.5f, 0.8f, 6.3f,
 		8.5f, 0.8f,6.3f,
@@ -645,6 +646,326 @@ int main()
 		-18.0f,0.0f,2.5f,
 	};
 	int num_posiciones_bancas = sizeof(posiciones_bancas) / sizeof(posiciones_bancas[0]);
+	glm::mat4 model(1.0);
+	glm::mat4 modelaux(1.0);
+	model = glm::mat4(1.0);
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Alameda->RenderModel();
+
+	model = glm::mat4(1.0);
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Monumento->RenderModel();
+
+	// Pajaro Compleja y keyframes
+	modelaux = glm::mat4(1.0);
+	model = glm::mat4(1.0);
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	model = glm::translate(model, glm::vec3(-1.7f, 5.5f, 31.0f));
+	model = glm::translate(model, glm::vec3(keyframes_pajaro->getVal("movX"), keyframes_pajaro->getVal("movY"), keyframes_pajaro->getVal("movZ")));
+	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(keyframes_pajaro->getVal("giroX")), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(keyframes_pajaro->getVal("giroY")), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(keyframes_pajaro->getVal("giroZ")), glm::vec3(0.0f, 0.0f, 1.0f));
+	modelaux = model;
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	CuerpoPajaro->RenderModel();
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(0.0f, 0.40f, 0.0f));
+	modelaux = model;
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.230f));
+	model = glm::rotate(model, glm::radians(mov_alas), glm::vec3(1.0f, 0.0f, 0.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	AlaDer->RenderModel();
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.230f));
+	model = glm::rotate(model, glm::radians(mov_alas*(-1.0f)), glm::vec3(1.0f, 0.0f, 0.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	AlaIzq->RenderModel();
+
+
+	model = glm::mat4(1.0);
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Fuente.RenderModel();
+
+	model = glm::mat4(1.0);
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Bano.RenderModel();
+
+	model = glm::mat4(1.0);
+	modelaux = glm::mat4(1.0);
+	model = glm::translate(model, glm::vec3(20.90f, 0.700f, 30.50f));
+	model = glm::rotate(model, glm::radians(rotPuerta1), glm::vec3(0.0f, 1.0f, 0.0f));
+	modelaux = model;
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	model = modelaux;
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.50f));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Puerta.RenderModel();
+
+
+	model = glm::mat4(1.0);
+	modelaux = glm::mat4(1.0);
+	model = glm::translate(model, glm::vec3(17.9f, 0.700f, 30.50f));
+	model = glm::rotate(model, glm::radians(rotPuerta2), glm::vec3(0.0f, 1.0f, 0.0f));
+	modelaux = model;
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	model = modelaux;
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.50f));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Puerta.RenderModel();
+
+	model = glm::mat4(1.0);
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Helipuerto.RenderModel();
+
+	// Helicoptero Animacion compleja
+	modelaux = glm::mat4(1.0);
+	model = glm::mat4(1.0);
+	model = glm::translate(model, glm::vec3(-21.5f + pos_x_helicopter,0.0f + pos_y_helicopter + func_helicoptero, -24.5f + pos_z_helicopter));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	model = glm::rotate(model, glm::radians(rot_y_helicoptero), glm::vec3(0.0f, 1.0f, 0.0f));
+	modelaux = model;
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Helicoptero.RenderModel();
+
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(0.4f, 0.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	if (pos_x_helicopter == 0.0f && pos_y_helicopter == 0.0f && pos_z_helicopter == 0.0f)
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	else
+		model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 1.0f, 0.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Helice.RenderModel();
+
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(-2.05f,4.55f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	if (pos_x_helicopter == 0.0f && pos_y_helicopter == 0.0f && pos_z_helicopter == 0.0f)
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	else
+		model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 0.0f, 1.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Helice_lateral.RenderModel();
+
+	// Helicoptero Animacion Keyframes
+	modelaux = glm::mat4(1.0);
+	model = glm::mat4(1.0);
+	// printf("\n%f %f %f\n", keyframes_helicoptero.getVal("movX"), keyframes_helicoptero.getVal("movY"), keyframes_helicoptero.getVal("movZ"));
+	model = glm::translate(model, glm::vec3(-21.5f, 0.0f, -20.5f));
+	model = glm::translate(model, glm::vec3(keyframes_helicoptero->getVal("movX"), keyframes_helicoptero->getVal("movY"), keyframes_helicoptero->getVal("movZ")));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	model = glm::rotate(model, glm::radians(keyframes_helicoptero->getVal("giroX")), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(keyframes_helicoptero->getVal("giroY")), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(keyframes_helicoptero->getVal("giroZ")), glm::vec3(0.0f, 0.0f, 1.0f));
+	modelaux = model;
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Helicoptero.RenderModel();
+
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(0.4f, 0.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	if (!keyframes_helicoptero->getPlay())
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	else
+		model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 1.0f, 0.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Helice.RenderModel();
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(-2.05f, 4.55f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	if(!keyframes_helicoptero->getPlay())
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	else
+		model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 0.0f, 1.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Helice_lateral.RenderModel();
+
+	//Kiosko 
+	modelaux = glm::mat4(1.0);
+	model = glm::mat4(1.0);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	modelaux = model;
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Kiosko->RenderModel();
+
+	// Avatar
+	//Cabeza
+	modelaux = glm::mat4(1.0);
+	model = glm::mat4(1.0);
+	model = glm::translate(model, posAvatar);
+	model = glm::rotate(model, glm::radians(-90+avatar_rot), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.1f));
+	modelaux = model;
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Cabeza_avatar->RenderModel();
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(0.0f, -0.62f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	modelaux = model;
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Cuerpo_avatar->RenderModel();
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(0.3f, 0.35f, 0.0f));
+	model = glm::rotate(model, glm::radians(rot_brazo - 45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	BrazoI_avatar->RenderModel();
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(-0.3f, 0.35f, 0.0f));
+	model = glm::rotate(model, glm::radians(-rot_brazo), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	BrazoD_avatar->RenderModel();
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(0.13f, -0.16f, 0.0f));
+	
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	PiernaI_avatar->RenderModel();
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(-0.13f, -0.16f, 0.0f));
+	model = glm::rotate(model, glm::radians(rot_pierna), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	PiernaD_avatar->RenderModel();
+	model = glm::mat4(1.0);
+	modelaux = glm::mat4(1.0);
+	model = glm::translate(model, glm::vec3(-1.7f, 1.3f, 32.0f));
+	modelaux = model;
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	MonticuloArena->RenderModel();
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(0.0f, animArena, 0.0f));
+	model = glm::rotate(model, glm::radians(animRotArena), glm::vec3(1.0f, 1.0f, 0.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Arena->RenderModel();
+	model = modelaux;
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(2.2f, 2.2f, 2.2f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Reloj_arena->RenderModel();
+	glDisable(GL_BLEND);
+	loadModelArray(Bote_basura, posiciones_botes, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_botes);
+	loadModelArray(*Arbol, posiciones_arboles, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arboles);
+	loadModelArray(Banca, posiciones_bancas, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_bancas);
+	loadModelArrayFaro(Faro, posiciones_faros, model, uniformModel, uniformSpecularIntensity, uniformShininess, inds_luz_faro, num_posiciones_faros);
+	Tagave.UseTexture();
+	loadModelArbustoArray(meshList[3], posiciones_arbustos, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arbustos);
+}
+
+
+int main(){
+	mainWindow = Window(1920, 1080); // 1280, 1024 or 1024, 768
+	mainWindow.Initialise();
+	CreateObjects();
+	CrearCubo();
+	CreateShaders();
+	camera = Camera(glm::vec3(26.0f, 3.0f, 1.2f), glm::vec3(0.0f, 1.0f, 0.0f), 180.0f, 0.0f, 5.0f, 0.5f);
+	
+	plainTexture = Texture("Textures/plain.png");
+	plainTexture.LoadTextureA();
+	Tagave = Texture("Textures/arbusto.png");
+	Tagave.LoadTextureA();
+	Material_brillante = Material(4.0f, 256);
+	Material_opaco = Material(0.3f, 4);
+	std::vector<std::thread> threads;
+	Alameda = new Model(); 
+	Alameda->LoadModel("Models/alameda.assbin");
+	Monumento = new Model();
+	Monumento->LoadModel("Models/monumento.assbin");
+	Kiosko = new Model();
+	Kiosko->LoadModel("Models/quiosco.assbin");
+	CuerpoPajaro = new Model();
+	CuerpoPajaro->LoadModel("Models/pajaro_cuerpo.obj");
+	AlaDer = new Model();
+	AlaDer->LoadModel("Models/ala_der.obj");
+	AlaIzq = new Model();
+	AlaIzq->LoadModel("Models/ala_izq.obj");
+	Arbol = new Model();
+	Arbol->LoadModel("Models/arbol.assbin");
+	Cabeza_avatar = new Model();
+	Cabeza_avatar->LoadModel("Models/avatar_cabeza.obj");
+	Cuerpo_avatar = new Model();
+	Cuerpo_avatar->LoadModel("Models/avatar_cuerpo.obj");
+	PiernaD_avatar = new Model();
+	PiernaD_avatar->LoadModel("Models/avatar_pierna_d.obj");
+	PiernaI_avatar = new Model();
+	PiernaI_avatar->LoadModel("Models/avatar_pierna_i.obj");
+	BrazoI_avatar = new Model();
+	BrazoI_avatar->LoadModel("Models/avatar_brazo_i.obj");
+	BrazoD_avatar = new Model();
+	BrazoD_avatar->LoadModel("Models/avatar_brazo_d.obj");
+	Reloj_arena = new Model();
+	Reloj_arena->LoadModel("Models/reloj_arena.obj");
+	Bote_basura = Model();
+	Bote_basura.LoadModel("Models/bote_basura.assbin");
+	Faro = Model();
+	Faro.LoadModel("Models/faro.assbin");
+	Banca = Model();
+	Banca.LoadModel("Models/banca.assbin");
+	Fuente = Model();
+	Fuente.LoadModel("Models/fuente.assbin");
+	Bano = Model();
+	Bano.LoadModel("Models/baño.assbin");
+	Puerta = Model();
+	Puerta.LoadModel("Models/puerta.assbin");
+	Helipuerto = Model();
+	Helipuerto.LoadModel("Models/helipuerto.assbin");
+	Helicoptero = Model();
+	Helicoptero.LoadModel("Models/helicopter.assbin");
+	Helice_lateral = Model();
+	Helice_lateral.LoadModel("Models/helice_lateral.assbin");
+	Helice = Model();
+	Helice.LoadModel("Models/helice.assbin");
+	Arena = new Model();
+	Arena->LoadModel("Models/arena.obj");
+	MonticuloArena = new Model();
+	MonticuloArena->LoadModel("Models/monticulo_arena.obj");
 	//luz direccional, s�lo 1 y siempre debe de existir
 	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
 		0.3f, 0.3f,
@@ -736,9 +1057,6 @@ int main()
 		20.0f);
 	spotLightCount++;
 
-
-	glm::vec3 posblackhawk = glm::vec3(2.0f, 0.0f, 0.0f);
-
 	std::vector<std::string> skyboxFaces;
 	skyboxFaces.push_back("Textures/Skybox/hill_lf.png");
 	skyboxFaces.push_back("Textures/Skybox/hill_rt.png");
@@ -757,46 +1075,15 @@ int main()
 
 	skybox = Skybox(skyboxFaces);
 	skybox_noche = Skybox(skyboxFaces_noche);
-
-	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
-		uniformSpecularIntensity = 0, uniformShininess = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 300.0f);
 
-	float giro_offset = 45.0f;
-	GLfloat rot_helice = 0.0f;
-	GLfloat mov_alas = 0.0f;
-	movOffset = 1.0f;
-	int sentido_carro = 1;
-	GLint ciclos = 0;
-	GLfloat pos_x_helicopter = 0.0f;
-	GLfloat pos_y_helicopter = 0.0f;
-	GLfloat pos_z_helicopter = 0.0f;
-	GLfloat func_helicoptero = 0.0f;
-	GLfloat puerta_offset = 45.0f;
-	GLfloat func_sin = 0.0f;
-	GLfloat rot_y_helicoptero = 0.0f;
-	GLfloat rotPuerta1 = 0.0f;
-	GLfloat rotPuerta2 = 0.0f;
-	GLfloat avatar_rot = 0.0f;
-	GLfloat rot_brazo = 0.0f;
-	GLfloat rot_pierna = 0.0f;
-	GLint flag_helicoptero = 1;
-	Keyframe *keyframes_pajaro = new Keyframe("Keyframes/keyFramesPajaro.txt", 60, "Pajaro");
-	Keyframe *keyframes_helicoptero = new Keyframe("Keyframes/keyFramesHelicoptero.txt", 60, "Helicoptero");
+	keyframes_pajaro = new Keyframe("Keyframes/keyFramesPajaro.txt", 60, "Pajaro");
+	keyframes_helicoptero = new Keyframe("Keyframes/keyFramesHelicoptero.txt", 60, "Helicoptero");
 	music->playMusic("sound/gorillaz.mp3");
-	bool isSoundHelicopterPlay = false;
-	bool isSoundPuertaPlay = true;
-	bool puerta1_anim_ant = false;
-	bool puerta2_anim_ant = false;
-	bool *keys_avatar;
-	bool alas_sentido = false;
-	bool brazo_sentido = false;
-	bool pierna_sentido = false;
-	glm::vec3 posAvatar(24.0f, 1.88f, 1.0f);
+	GLfloat now;
 	//Loop mientras no se cierra la ventana
 	while (!mainWindow.getShouldClose()){
-
-		GLfloat now = float(glfwGetTime());
+		now = float(glfwGetTime());
 		deltaTime = 1.0f * (now - lastTime);
 		lastTime = now;
 		//Recibir eventos del usuario
@@ -1011,260 +1298,8 @@ int main()
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 		printf("%f %f %f\n", camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
-		glm::mat4 model(1.0);
-		glm::mat4 modelaux(1.0);
-		model = glm::mat4(1.0);
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Alameda->RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Monumento->RenderModel();
-
-		// Pajaro Compleja y keyframes
-		modelaux = glm::mat4(1.0);
-		model = glm::mat4(1.0);
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		model = glm::translate(model, glm::vec3(-1.7f, 5.5f, 31.0f));
-		model = glm::translate(model, glm::vec3(keyframes_pajaro->getVal("movX"), keyframes_pajaro->getVal("movY"), keyframes_pajaro->getVal("movZ")));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(keyframes_pajaro->getVal("giroX")), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(keyframes_pajaro->getVal("giroY")), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(keyframes_pajaro->getVal("giroZ")), glm::vec3(0.0f, 0.0f, 1.0f));
-		modelaux = model;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		CuerpoPajaro->RenderModel();
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(0.0f, 0.40f, 0.0f));
-		modelaux = model;
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.230f));
-		model = glm::rotate(model, glm::radians(mov_alas), glm::vec3(1.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		AlaDer->RenderModel();
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.230f));
-		model = glm::rotate(model, glm::radians(mov_alas*(-1.0f)), glm::vec3(1.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		AlaIzq->RenderModel();
-
-
-		model = glm::mat4(1.0);
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Fuente.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Bano.RenderModel();
-
-		model = glm::mat4(1.0);
-		modelaux = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(20.90f, 0.700f, 30.50f));
-		model = glm::rotate(model, glm::radians(rotPuerta1), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelaux = model;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		model = modelaux;
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.50f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Puerta.RenderModel();
-
-
-		model = glm::mat4(1.0);
-		modelaux = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(17.9f, 0.700f, 30.50f));
-		model = glm::rotate(model, glm::radians(rotPuerta2), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelaux = model;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		model = modelaux;
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.50f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Puerta.RenderModel();
-
-		model = glm::mat4(1.0);
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Helipuerto.RenderModel();
-
-		// Helicoptero Animacion compleja
-		modelaux = glm::mat4(1.0);
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-21.5f + pos_x_helicopter,0.0f + pos_y_helicopter + func_helicoptero, -24.5f + pos_z_helicopter));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		model = glm::rotate(model, glm::radians(rot_y_helicoptero), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelaux = model;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Helicoptero.RenderModel();
-
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(0.4f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		if (pos_x_helicopter == 0.0f && pos_y_helicopter == 0.0f && pos_z_helicopter == 0.0f)
-			model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		else
-			model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Helice.RenderModel();
-
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(-2.05f,4.55f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		if (pos_x_helicopter == 0.0f && pos_y_helicopter == 0.0f && pos_z_helicopter == 0.0f)
-			model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		else
-			model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 0.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Helice_lateral.RenderModel();
-
-		// Helicoptero Animacion Keyframes
-		modelaux = glm::mat4(1.0);
-		model = glm::mat4(1.0);
-		// printf("\n%f %f %f\n", keyframes_helicoptero.getVal("movX"), keyframes_helicoptero.getVal("movY"), keyframes_helicoptero.getVal("movZ"));
-		model = glm::translate(model, glm::vec3(-21.5f, 0.0f, -20.5f));
-		model = glm::translate(model, glm::vec3(keyframes_helicoptero->getVal("movX"), keyframes_helicoptero->getVal("movY"), keyframes_helicoptero->getVal("movZ")));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		model = glm::rotate(model, glm::radians(keyframes_helicoptero->getVal("giroX")), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(keyframes_helicoptero->getVal("giroY")), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(keyframes_helicoptero->getVal("giroZ")), glm::vec3(0.0f, 0.0f, 1.0f));
-		modelaux = model;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Helicoptero.RenderModel();
-
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(0.4f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		if (!keyframes_helicoptero->getPlay())
-			model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		else
-			model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Helice.RenderModel();
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(-2.05f, 4.55f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		if(!keyframes_helicoptero->getPlay())
-			model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		else
-			model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 0.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Helice_lateral.RenderModel();
-
-		//Kiosko 
-		modelaux = glm::mat4(1.0);
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		modelaux = model;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Kiosko->RenderModel();
-
-		// Avatar
-		//Cabeza
-		modelaux = glm::mat4(1.0);
-		model = glm::mat4(1.0);
-		model = glm::translate(model, posAvatar);
-		model = glm::rotate(model, glm::radians(-90+avatar_rot), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.1f));
-		modelaux = model;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Cabeza_avatar->RenderModel();
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(0.0f, -0.62f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		modelaux = model;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Cuerpo_avatar->RenderModel();
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(0.3f, 0.35f, 0.0f));
-		model = glm::rotate(model, glm::radians(rot_brazo - 45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		BrazoI_avatar->RenderModel();
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(-0.3f, 0.35f, 0.0f));
-		model = glm::rotate(model, glm::radians(-rot_brazo), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		BrazoD_avatar->RenderModel();
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(0.13f, -0.16f, 0.0f));
-		
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		PiernaI_avatar->RenderModel();
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(-0.13f, -0.16f, 0.0f));
-		model = glm::rotate(model, glm::radians(rot_pierna), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		PiernaD_avatar->RenderModel();
-		model = glm::mat4(1.0);
-		modelaux = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-1.7f, 1.3f, 32.0f));
-		modelaux = model;
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		MonticuloArena->RenderModel();
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(0.0f, animArena, 0.0f));
-		model = glm::rotate(model, glm::radians(animRotArena), glm::vec3(1.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Arena->RenderModel();
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(2.2f, 2.2f, 2.2f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Reloj_arena->RenderModel();
-		glDisable(GL_BLEND);
-		
-		loadModelArray(Bote_basura, posiciones_botes, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_botes);
-		loadModelArray(*Arbol, posiciones_arboles, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arboles);
-		loadModelArray(Banca, posiciones_bancas, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_bancas);
-		loadModelArrayFaro(Faro, posiciones_faros, model, uniformModel, uniformSpecularIntensity, uniformShininess, inds_luz_faro, num_posiciones_faros);
-
-		Tagave.UseTexture();
-		loadModelArbustoArray(meshList[3], posiciones_arbustos, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arbustos);
+		renderScene(&shaderList[0]);
 		glUseProgram(0);
-
 		mainWindow.swapBuffers();
 	}
 
