@@ -1,10 +1,10 @@
 SRCDIR=$(PWD)
 NAMEDEST=ventana
 SRCDISTNAME=main.cpp
-CLASSES=camera lights model mesh sphere window material shader texture skybox
-SRCCODE=Camera.cpp Light.cpp Mesh_tn.cpp Sphere.cpp Window.cpp DirectionalLight.cpp Material.cpp PointLight.cpp Shader_light.cpp Texture.cpp
+CLASSES=camera lights model mesh sphere window material shader texture skybox keyframe sound
+SRCCODE=Camera.cpp Sound.cpp Light.cpp Mesh_tn.cpp Sphere.cpp Window.cpp DirectionalLight.cpp Keyframe.cpp Material.cpp PointLight.cpp Shader_light.cpp Texture.cpp
 CC=g++
-CFLAGS=-std=c++2a -Wall -lGL -lGLEW -lglfw -lassimp
+CFLAGS=-std=c++2a -Wall -lGL -lGLEW -lglfw -lassimp -lIrrKlang
 INCLUDES=-I$(SRCDIR)/glm -I$(SRCDIR)/include
 NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)
 MAKEFLAGS += -j$(NPROCS)
@@ -34,6 +34,12 @@ camera:
 .PHONY: mesh
 mesh: 
 	$(CC) $(CFLAGS) $(INCLUDES) -c Mesh_tn.cpp
+.PHONY: keyframe
+keyframe:
+	$(CC) $(CFLAGS) $(INCLUDES) -c Keyframe.cpp
+.PHONY: sound
+keyframe:
+	$(CC) $(CFLAGS) $(INCLUDES) -c Sound.cpp
 .PHONY: texture
 texture:
 	$(CC) $(CFLAGS) $(INCLUDES) -c Texture.cpp
