@@ -68,13 +68,7 @@ public:
 	 * @param col 
 	 */
 	void SetColor(glm::vec3 col);
-	/**
-	 * @brief Set the Pos object
-	 * 
-	 * 
-	 * @param pos 
-	 */
-	void SetPos(glm::vec3 pos);
+	void SetDirection(glm::vec3 dir);
 	~SpotLight();
 
 private:

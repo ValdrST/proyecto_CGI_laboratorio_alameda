@@ -60,13 +60,18 @@ public:
 	GLfloat getmuevex() { return muevex; }
 	GLfloat getmuevey() { return muevey; }
 	GLfloat getmuevez() { return muevez; }
+	GLfloat getCambioX() { return cambioX; }
+	GLfloat getCambioY() { return cambioY; }
+	GLfloat getCambioZ() { return cambioZ; }
 	bool getAnimPuerta1() { return animPuerta1; }
 	bool getAnimPuerta2() { return animPuerta2; }
 	bool getAnimArena() { return animArena; }
 	bool getAnimKeyHelicoptero() { return animKeyHelicoptero; }
 	bool getAnimKeyPajaro() { return animKeyPajaro; }
+	bool getAnimKeyAlameda() { return animKeyAlameda; }
 	void setAnimKeyHelicoptero(bool val) {  animKeyHelicoptero = val; }
 	void setAnimKeyPajaro(bool val) { animKeyPajaro = val; }
+	void setAnimKeyAlameda(bool val) { animKeyAlameda = val; }
 	int getCamara();
 	bool getAnimHelicoptero();
 	/**
@@ -100,11 +105,14 @@ private:
 	bool keys[1024];
 	GLint bufferWidth, bufferHeight;
 	void createCallbacks();
+	GLfloat cambioX;
+	GLfloat cambioY;
+	GLfloat cambioZ;
+	GLboolean statusLight;
 	GLfloat lastX;
 	GLfloat lastY;
 	GLfloat xChange;
 	GLfloat yChange;
-	GLboolean statusLight;
 	GLfloat muevex;
 	GLfloat muevey;
 	GLfloat muevez;
@@ -120,6 +128,7 @@ private:
 	bool animPuerta2;
 	bool animArena;
 	bool animKeyHelicoptero;
+	bool animKeyAlameda;
 	bool animKeyPajaro;
 	bool mouseFirstMoved;
 	/**

@@ -100,6 +100,9 @@ Model *MonticuloArena;
 // Keyframes
 Keyframe *keyframes_pajaro = new Keyframe("Keyframes/keyFramesPajaro.txt", 60, "Pajaro");
 Keyframe *keyframes_helicoptero = new Keyframe("Keyframes/keyFramesHelicoptero.txt", 60, "Helicoptero");
+Keyframe *keyframes_spotLight_R = new Keyframe("Keyframes/keyFramesSpotLight_R.txt", 60, "SpotLight_R");
+Keyframe *keyframes_spotLight_G = new Keyframe("Keyframes/keyFramesSpotLight_G.txt", 60, "SpotLight_G");
+Keyframe *keyframes_spotLight_B = new Keyframe("Keyframes/keyFramesSpotLight_B.txt", 60, "SpotLight_B");
 // Variables de animacion
 
 glm::vec3 posAvatar(24.0f, 1.88f, 1.0f);
@@ -112,6 +115,9 @@ GLfloat movOffset = 1.0f;
 GLfloat pos_x_helicopter = 0.0f;
 GLfloat pos_y_helicopter = 0.0f;
 GLfloat pos_z_helicopter = 0.0f;
+GLfloat posSpotX[3] = {0.0f,0.0f,0.0f};
+GLfloat posSpotY[3] = {0.0f,0.0f,0.0f};
+GLfloat posSpotZ[3] = {0.0f,0.0f,0.0f};
 GLfloat func_helicoptero = 0.0f;
 GLfloat puerta_offset = 45.0f;
 GLfloat func_sin = 0.0f;
@@ -1075,9 +1081,6 @@ int main(){
 	skybox = Skybox(skyboxFaces);
 	skybox_noche = Skybox(skyboxFaces_noche);
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 300.0f);
-
-	keyframes_pajaro = new Keyframe("Keyframes/keyFramesPajaro.txt", 60, "Pajaro");
-	keyframes_helicoptero = new Keyframe("Keyframes/keyFramesHelicoptero.txt", 60, "Helicoptero");
 	music->playMusic("sound/gorillaz.mp3");
 	GLfloat now;
 	//Loop mientras no se cierra la ventana
@@ -1144,8 +1147,24 @@ int main(){
 		keyframes_pajaro->animate();
 		keyframes_helicoptero->inputKeyframes(mainWindow.getAnimKeyHelicoptero());
 		keyframes_helicoptero->animate();
+		keyframes_spotLight_R->inputKeyframes(mainWindow.getAnimKeyAlameda());
+		keyframes_spotLight_R->animate();
+		keyframes_spotLight_G->inputKeyframes(mainWindow.getAnimKeyAlameda());
+		keyframes_spotLight_G->animate();
+		keyframes_spotLight_B->inputKeyframes(mainWindow.getAnimKeyAlameda());
+		keyframes_spotLight_B->animate();
 		mainWindow.setAnimKeyHelicoptero(false);
 		mainWindow.setAnimKeyPajaro(false);
+		mainWindow.setAnimKeyAlameda(false);
+		posSpotX[0] = keyframes_spotLight_R->getVal("movX");
+		posSpotX[1] = keyframes_spotLight_G->getVal("movX");
+		posSpotX[2] = keyframes_spotLight_B->getVal("movX");
+		posSpotY[0] = keyframes_spotLight_R->getVal("movY");
+		posSpotY[1] = keyframes_spotLight_G->getVal("movY");
+		posSpotY[2] = keyframes_spotLight_B->getVal("movY");
+		posSpotZ[0] = keyframes_spotLight_R->getVal("movZ");
+		posSpotZ[1] = keyframes_spotLight_G->getVal("movZ");
+		posSpotZ[2] = keyframes_spotLight_B->getVal("movZ");
 		// Animacion simple puertas
 		if(mainWindow.getAnimPuerta1() != puerta1_anim_ant)
 			isSoundPuertaPlay = false;
@@ -1289,14 +1308,16 @@ int main(){
 			spotLights[3].SetColor(glm::vec3(0.0f, 0.0f, 1.0f));
 		else
 			spotLights[3].SetColor(glm::vec3(0.0f, 0.0f, 0.0f));
-
+		spotLights[1].SetDirection(glm::vec3(posSpotX[0],posSpotY[0],posSpotZ[0]));
+		spotLights[2].SetDirection(glm::vec3(posSpotX[1],posSpotY[1],posSpotZ[1]));
+		spotLights[3].SetDirection(glm::vec3(posSpotX[2],posSpotY[2],posSpotZ[2]));
 		shaderList[0].SetDirectionalLight(&mainLight);
 		shaderList[0].SetPointLights(pointLights, pointLightCount);
 		shaderList[0].SetSpotLights(spotLights, spotLightCount);
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
-		printf("%f %f %f\n", camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+		//printf("%f %f %f\n", camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 		renderScene(&shaderList[0]);
 		glUseProgram(0);
 		mainWindow.swapBuffers();

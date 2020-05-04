@@ -17,12 +17,16 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	animHelicoptero = false;
 	animKeyHelicoptero = false;
 	animKeyPajaro = false;
+	animKeyAlameda = false;
 	animPuerta1 = false;
 	animPuerta2 = false;
 	statusLight = false;
 	status_luzR = false;
 	status_luzG = false;
 	status_luzB = false;
+	cambioX = 0.0f;
+	cambioY = 0.0f;
+	cambioZ = 0.0f;
 	animArena = false;
 
 	for (size_t i = 0; i < 1024; i++)
@@ -128,6 +132,24 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	{
 		theWindow-> muevex += 0.10f;
 	}
+	if (key == GLFW_KEY_KP_8){
+		theWindow -> cambioX += 1.0f;
+	}
+	if (key == GLFW_KEY_KP_2){
+		theWindow -> cambioX -= 1.0f;
+	}
+	if (key == GLFW_KEY_KP_6){
+		theWindow -> cambioY += 1.0f;
+	}
+	if (key == GLFW_KEY_KP_4){
+		theWindow -> cambioY -= 1.0f;
+	}
+	if (key == GLFW_KEY_KP_9){
+		theWindow -> cambioZ += 1.0f;
+	}
+	if (key == GLFW_KEY_KP_7){
+		theWindow -> cambioZ -= 1.0f;
+	}
 	if (key == GLFW_KEY_J)
 	{
 		if (action == GLFW_RELEASE) {
@@ -211,6 +233,12 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	{
 		if (action == GLFW_RELEASE) {
 			theWindow->animKeyPajaro = true;
+		}
+	}
+	if (key == GLFW_KEY_3)
+	{
+		if (action == GLFW_RELEASE) {
+			theWindow->animKeyAlameda = true;
 		}
 	}
 	if (key == GLFW_KEY_C) {

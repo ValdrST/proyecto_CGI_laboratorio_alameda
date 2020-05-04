@@ -38,7 +38,7 @@ mesh:
 keyframe:
 	$(CC) $(CFLAGS) $(INCLUDES) -c Keyframe.cpp
 .PHONY: sound
-keyframe:
+sound:
 	$(CC) $(CFLAGS) $(INCLUDES) -c Sound.cpp
 .PHONY: texture
 texture:
