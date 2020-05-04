@@ -14,12 +14,6 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	width = windowWidth;
 	height = windowHeight;
 	camara = 0;
-	muevex;
-	muevey;
-	muevez;
-	girox;
-	giroy;
-	giroz;
 	animHelicoptero = false;
 	animKeyHelicoptero = false;
 	animKeyPajaro = false;
@@ -51,7 +45,7 @@ int Window::Initialise()
 	//para solo usar el core profile de OpenGL y no tener retrocompatibilidad
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_SAMPLES, 8);
+	glfwWindowHint(GLFW_SAMPLES, 2);
 
 	//CREAR VENTANA
 	mainWindow = glfwCreateWindow(width, height, "Proyecto Alameda", NULL, NULL);

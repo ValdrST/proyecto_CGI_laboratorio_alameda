@@ -68,7 +68,7 @@ void Model::RenderModel(){
 	for (size_t i = 0; i < MeshList.size(); i++)
 	{
 		unsigned int materialIndex = meshTotex[i];
-		if ((!(materialIndex) < TextureList.size()) && TextureList[materialIndex])
+		if (((!materialIndex) < TextureList.size()) && TextureList[materialIndex])
 		{
 			TextureList[materialIndex]->UseTexture();
 		}

@@ -159,7 +159,7 @@ void calcAverageNormals(unsigned int * indices, unsigned int indiceCount, GLfloa
 
 	for (size_t i = 0; i < verticeCount / vLength; i++)
 	{
-		unsigned int nOffset = unsigned int(i) * vLength + normalOffset;
+		unsigned int nOffset = (unsigned int)i * vLength + normalOffset;
 		glm::vec3 vec(vertices[nOffset], vertices[nOffset + 1], vertices[nOffset + 2]);
 		vec = glm::normalize(vec);
 		vertices[nOffset] = vec.x; vertices[nOffset + 1] = vec.y; vertices[nOffset + 2] = vec.z;
@@ -897,7 +897,6 @@ void renderScene(Shader *shader){
 	Tagave.UseTexture();
 	loadModelArbustoArray(meshList[3], posiciones_arbustos, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arbustos);
 }
-
 
 int main(){
 	mainWindow = Window(1920, 1080); // 1280, 1024 or 1024, 768
