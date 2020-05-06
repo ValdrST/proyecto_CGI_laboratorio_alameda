@@ -169,6 +169,13 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Keyframes\keyFramesHelicoptero.txt" />
+    <Text Include="Keyframes\keyFramesPajaro.txt" />
+    <Text Include="Keyframes\keyFramesSpotLight_B.txt" />
+    <Text Include="Keyframes\keyFramesSpotLight_G.txt" />
+    <Text Include="Keyframes\keyFramesSpotLight_R.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

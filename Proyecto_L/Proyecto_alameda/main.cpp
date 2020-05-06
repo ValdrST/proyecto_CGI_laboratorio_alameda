@@ -131,6 +131,7 @@ GLint flag_helicoptero = 1;
 GLint ciclos = 0;
 bool isSoundHelicopterPlay = false;
 bool isSoundPuertaPlay = true;
+bool isSoundPasoPlay = true;
 bool puerta1_anim_ant = false;
 bool puerta2_anim_ant = false;
 bool *keys_avatar;
@@ -313,6 +314,22 @@ void CrearCubo()
 	cubo->CreateMesh(cubo_vertices, cubo_indices, 192, 36);
 	meshList.push_back(cubo);
 
+}
+
+bool reproducirSonido(Sound *music, ISound** fx, const char *file) {
+	if (*fx != NULL) {
+		if ((*fx)->isFinished()) {
+			*fx = music->playFX(file);
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	else {
+		*fx = music->playFX(file);
+		return true;
+	}
 }
 
 void CreateShaders()
@@ -911,7 +928,6 @@ int main(){
 	CrearCubo();
 	CreateShaders();
 	camera = Camera(glm::vec3(26.0f, 3.0f, 1.2f), glm::vec3(0.0f, 1.0f, 0.0f), 180.0f, 0.0f, 5.0f, 0.5f);
-	
 	plainTexture = Texture("Textures/plain.png");
 	plainTexture.LoadTextureA();
 	Tagave = Texture("Textures/arbusto.png");
@@ -1082,6 +1098,9 @@ int main(){
 	skybox_noche = Skybox(skyboxFaces_noche);
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 300.0f);
 	music->playMusic("sound/gorillaz.mp3");
+	ISound* fx_step = NULL;
+	ISound* fx_helicoptero = NULL;
+	ISound* fx_pajaro = NULL;
 	GLfloat now;
 	//Loop mientras no se cierra la ventana
 	while (!mainWindow.getShouldClose()){
@@ -1106,6 +1125,7 @@ int main(){
 			posAvatar.z = camera.getCameraPosition().z;
 			keys_avatar = mainWindow.getsKeys();
 			if (keys_avatar[GLFW_KEY_A] || keys_avatar[GLFW_KEY_W] || keys_avatar[GLFW_KEY_D] || keys_avatar[GLFW_KEY_S]) {
+				reproducirSonido(music, &fx_step, "sound/step.mp3");
 				rotacion_compleja_anim(&rot_brazo, &brazo_sentido, 0.0f, 45.0f, 50.0f);
 				rotacion_compleja_anim(&rot_pierna, &pierna_sentido, -45.0f, 45.0f, 90.0f);
 				if (keys_avatar[GLFW_KEY_D] && keys_avatar[GLFW_KEY_W])
@@ -1153,6 +1173,10 @@ int main(){
 		keyframes_spotLight_G->animate();
 		keyframes_spotLight_B->inputKeyframes(mainWindow.getAnimKeyAlameda());
 		keyframes_spotLight_B->animate();
+		if (mainWindow.getAnimKeyPajaro() && keyframes_pajaro->getPlay())
+			reproducirSonido(music, &fx_pajaro, "sound/pajaro.mp3");
+		if (mainWindow.getAnimKeyHelicoptero() && keyframes_helicoptero->getPlay())
+			reproducirSonido(music, &fx_helicoptero, "sound/helicoptero.wav");
 		mainWindow.setAnimKeyHelicoptero(false);
 		mainWindow.setAnimKeyPajaro(false);
 		mainWindow.setAnimKeyAlameda(false);
@@ -1170,7 +1194,7 @@ int main(){
 			isSoundPuertaPlay = false;
 		puerta1_anim_ant = mainWindow.getAnimPuerta1();
 		if(mainWindow.getAnimPuerta1()) {
-			animacion_simple(&rotPuerta1, 90.0f, puerta_offset / 4, "sound/puerta_abre.wav", &isSoundPuertaPlay);
+						animacion_simple(&rotPuerta1, 90.0f, puerta_offset / 4, "sound/puerta_abre.wav", &isSoundPuertaPlay);
 		}
 		else {
 			animacion_simple(&rotPuerta1, 0.0f, puerta_offset, "sound/puerta_cierra.wav", &isSoundPuertaPlay);
@@ -1186,11 +1210,11 @@ int main(){
 		}
 		// Animacion reloj de arena
 		if (mainWindow.getAnimArena()) {
-			animArena = 1.0f;
+			animArena = 1.50f;
 			animRotArena = 0.0f;
 		}
-			animacion_simple(&animArena, 0.50f, 1.0f, NULL, NULL);
-			animacion_simple(&animRotArena, 90.0f, 180.0f, NULL, NULL);
+			animacion_simple(&animArena, 0.25f, 1.0f, NULL, NULL);
+			animacion_simple(&animRotArena, 115.0f, 180.0f, NULL, NULL);
 		// Animacion alas de pajaro
 		rotacion_compleja_anim(&mov_alas, &alas_sentido, 0.0f, 45.0f, 30.0f);
 		// Animacion helices
@@ -1198,8 +1222,9 @@ int main(){
 		if (mainWindow.getAnimHelicoptero()) {
 			// Efecto de sonido helicoptero
 			if (!isSoundHelicopterPlay) {
-				music->playFX("sound/helicoptero.wav");
-				isSoundHelicopterPlay = true;
+				if (!reproducirSonido(music, &fx_helicoptero, "sound/helicoptero.wav")) {
+					isSoundHelicopterPlay = true;
+				}
 			}
 			// Altura
 			if (pos_y_helicopter <= 15.0f) {

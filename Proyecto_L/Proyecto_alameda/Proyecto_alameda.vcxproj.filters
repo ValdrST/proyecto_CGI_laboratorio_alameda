@@ -113,5 +113,25 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{85b66a18-e5e8-41e6-82ac-439a138e9a05}</UniqueIdentifier>
     </Filter>
+    <Filter Include="keyframes">
+      <UniqueIdentifier>{7acba98f-bdd1-4529-97e8-b12cbb4685a8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Keyframes\keyFramesHelicoptero.txt">
+      <Filter>keyframes</Filter>
+    </Text>
+    <Text Include="Keyframes\keyFramesPajaro.txt">
+      <Filter>keyframes</Filter>
+    </Text>
+    <Text Include="Keyframes\keyFramesSpotLight_B.txt">
+      <Filter>keyframes</Filter>
+    </Text>
+    <Text Include="Keyframes\keyFramesSpotLight_G.txt">
+      <Filter>keyframes</Filter>
+    </Text>
+    <Text Include="Keyframes\keyFramesSpotLight_R.txt">
+      <Filter>keyframes</Filter>
+    </Text>
   </ItemGroup>
 </Project>
