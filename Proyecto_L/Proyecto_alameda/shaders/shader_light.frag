@@ -103,9 +103,6 @@ vec4 CalcPointLight(PointLight pLight)
 	return (color / attenuation);
 }
 
-
-
-
 vec4 CalcSpotLight(SpotLight sLight)
 {
 	vec3 rayDirection = normalize(FragPos - sLight.base.position);
@@ -121,15 +118,6 @@ vec4 CalcSpotLight(SpotLight sLight)
 		return vec4(0, 0, 0, 0);
 	}
 }
-
-
-
-
-
-
-
-
-
 
 vec4 CalcPointLights()
 {
@@ -152,7 +140,6 @@ vec4 CalcSpotLights()
 	
 	return totalcolor;
 }
-
 
 void main()
 {

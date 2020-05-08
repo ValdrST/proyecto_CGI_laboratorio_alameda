@@ -85,16 +85,16 @@ Model *PiernaI_avatar;
 Model *BrazoI_avatar;
 Model *BrazoD_avatar;
 Model *Reloj_arena;
-Model Bote_basura;
-Model Faro;
-Model Banca;
-Model Fuente;
-Model Bano;
-Model Puerta;
-Model Helipuerto;
-Model Helicoptero;
-Model Helice_lateral;
-Model Helice;
+Model *Bote_basura;
+Model *Faro;
+Model *Banca;
+Model *Fuente;
+Model *Bano;
+Model *Puerta;
+Model *Helipuerto;
+Model *Helicoptero;
+Model *Helice_lateral;
+Model *Helice;
 Model *Arena;
 Model *MonticuloArena;
 // Keyframes
@@ -720,14 +720,14 @@ void renderScene(Shader *shader){
 	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	Fuente.RenderModel();
+	Fuente->RenderModel();
 
 	model = glm::mat4(1.0);
 	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	Bano.RenderModel();
+	Bano->RenderModel();
 
 	model = glm::mat4(1.0);
 	modelaux = glm::mat4(1.0);
@@ -741,7 +741,7 @@ void renderScene(Shader *shader){
 	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	Puerta.RenderModel();
+	Puerta->RenderModel();
 
 
 	model = glm::mat4(1.0);
@@ -756,14 +756,14 @@ void renderScene(Shader *shader){
 	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	Puerta.RenderModel();
+	Puerta->RenderModel();
 
 	model = glm::mat4(1.0);
 	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	Helipuerto.RenderModel();
+	Helipuerto->RenderModel();
 
 	// Helicoptero Animacion compleja
 	modelaux = glm::mat4(1.0);
@@ -774,7 +774,7 @@ void renderScene(Shader *shader){
 	modelaux = model;
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	Helicoptero.RenderModel();
+	Helicoptero->RenderModel();
 
 	model = modelaux;
 	model = glm::translate(model, glm::vec3(0.4f, 0.0f, 0.0f));
@@ -785,7 +785,7 @@ void renderScene(Shader *shader){
 		model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 1.0f, 0.0f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	Helice.RenderModel();
+	Helice->RenderModel();
 
 	model = modelaux;
 	model = glm::translate(model, glm::vec3(-2.05f,4.55f, 0.0f));
@@ -796,7 +796,7 @@ void renderScene(Shader *shader){
 		model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	Helice_lateral.RenderModel();
+	Helice_lateral->RenderModel();
 
 	// Helicoptero Animacion Keyframes
 	modelaux = glm::mat4(1.0);
@@ -811,7 +811,7 @@ void renderScene(Shader *shader){
 	modelaux = model;
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	Helicoptero.RenderModel();
+	Helicoptero->RenderModel();
 
 	model = modelaux;
 	model = glm::translate(model, glm::vec3(0.4f, 0.0f, 0.0f));
@@ -822,7 +822,7 @@ void renderScene(Shader *shader){
 		model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 1.0f, 0.0f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	Helice.RenderModel();
+	Helice->RenderModel();
 	model = modelaux;
 	model = glm::translate(model, glm::vec3(-2.05f, 4.55f, 0.0f));
 	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -832,7 +832,7 @@ void renderScene(Shader *shader){
 		model = glm::rotate(model, glm::radians(rot_helice), glm::vec3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-	Helice_lateral.RenderModel();
+	Helice_lateral->RenderModel();
 
 	//Kiosko 
 	modelaux = glm::mat4(1.0);
@@ -913,10 +913,10 @@ void renderScene(Shader *shader){
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	Reloj_arena->RenderModel();
 	glDisable(GL_BLEND);
-	loadModelArray(Bote_basura, posiciones_botes, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_botes);
+	loadModelArray(*Bote_basura, posiciones_botes, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_botes);
 	loadModelArray(*Arbol, posiciones_arboles, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arboles);
-	loadModelArray(Banca, posiciones_bancas, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_bancas);
-	loadModelArrayFaro(Faro, posiciones_faros, model, uniformModel, uniformSpecularIntensity, uniformShininess, inds_luz_faro, num_posiciones_faros);
+	loadModelArray(*Banca, posiciones_bancas, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_bancas);
+	loadModelArrayFaro(*Faro, posiciones_faros, model, uniformModel, uniformSpecularIntensity, uniformShininess, inds_luz_faro, num_posiciones_faros);
 	Tagave.UseTexture();
 	loadModelArbustoArray(meshList[3], posiciones_arbustos, model, uniformModel, uniformSpecularIntensity, uniformShininess, num_posiciones_arbustos);
 }
@@ -963,26 +963,26 @@ int main(){
 	BrazoD_avatar->LoadModel("Models/avatar_brazo_d.obj");
 	Reloj_arena = new Model();
 	Reloj_arena->LoadModel("Models/reloj_arena.obj");
-	Bote_basura = Model();
-	Bote_basura.LoadModel("Models/bote_basura.assbin");
-	Faro = Model();
-	Faro.LoadModel("Models/faro.assbin");
-	Banca = Model();
-	Banca.LoadModel("Models/banca.assbin");
-	Fuente = Model();
-	Fuente.LoadModel("Models/fuente.assbin");
-	Bano = Model();
-	Bano.LoadModel("Models/baño.assbin");
-	Puerta = Model();
-	Puerta.LoadModel("Models/puerta.assbin");
-	Helipuerto = Model();
-	Helipuerto.LoadModel("Models/helipuerto.assbin");
-	Helicoptero = Model();
-	Helicoptero.LoadModel("Models/helicopter.assbin");
-	Helice_lateral = Model();
-	Helice_lateral.LoadModel("Models/helice_lateral.assbin");
-	Helice = Model();
-	Helice.LoadModel("Models/helice.assbin");
+	Bote_basura = new Model();
+	Bote_basura->LoadModel("Models/bote_basura.assbin");
+	Faro = new Model();
+	Faro->LoadModel("Models/faro.assbin");
+	Banca = new Model();
+	Banca->LoadModel("Models/banca.assbin");
+	Fuente = new Model();
+	Fuente->LoadModel("Models/fuente.assbin");
+	Bano = new Model();
+	Bano->LoadModel("Models/baño.assbin");
+	Puerta = new Model();
+	Puerta->LoadModel("Models/puerta.assbin");
+	Helipuerto = new Model();
+	Helipuerto->LoadModel("Models/helipuerto.assbin");
+	Helicoptero = new Model();
+	Helicoptero->LoadModel("Models/helicopter.assbin");
+	Helice_lateral = new Model();
+	Helice_lateral->LoadModel("Models/helice_lateral.assbin");
+	Helice = new Model();
+	Helice->LoadModel("Models/helice.assbin");
 	Arena = new Model();
 	Arena->LoadModel("Models/arena.obj");
 	MonticuloArena = new Model();
@@ -1099,7 +1099,8 @@ int main(){
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 300.0f);
 	music->playMusic("sound/gorillaz.mp3");
 	ISound* fx_step = NULL;
-	ISound* fx_helicoptero = NULL;
+	ISound* fx_helicoptero_complex = NULL;
+	ISound* fx_helicoptero_key = NULL;
 	ISound* fx_pajaro = NULL;
 	GLfloat now;
 	//Loop mientras no se cierra la ventana
@@ -1176,7 +1177,7 @@ int main(){
 		if (mainWindow.getAnimKeyPajaro() && keyframes_pajaro->getPlay())
 			reproducirSonido(music, &fx_pajaro, "sound/pajaro.mp3");
 		if (mainWindow.getAnimKeyHelicoptero() && keyframes_helicoptero->getPlay())
-			reproducirSonido(music, &fx_helicoptero, "sound/helicoptero.wav");
+			reproducirSonido(music, &fx_helicoptero_key, "sound/helicoptero.wav");
 		mainWindow.setAnimKeyHelicoptero(false);
 		mainWindow.setAnimKeyPajaro(false);
 		mainWindow.setAnimKeyAlameda(false);
@@ -1222,7 +1223,7 @@ int main(){
 		if (mainWindow.getAnimHelicoptero()) {
 			// Efecto de sonido helicoptero
 			if (!isSoundHelicopterPlay) {
-				if (!reproducirSonido(music, &fx_helicoptero, "sound/helicoptero.wav")) {
+				if (!reproducirSonido(music, &fx_helicoptero_complex, "sound/helicoptero.wav")) {
 					isSoundHelicopterPlay = true;
 				}
 			}
